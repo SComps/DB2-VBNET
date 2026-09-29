@@ -23,11 +23,11 @@ Namespace Db
                             list.Add(New Project With {
                                 .PName    = r.GetString(0).Trim(),
                                 .PFile    = If(r.IsDBNull(1), "", r.GetString(1).Trim()),
-                                .PRuntime = If(r.IsDBNull(2), 0, r.GetInt32(2)),
-                                .PCostMin = If(r.IsDBNull(3), 0, r.GetDecimal(3)),
-                                .PMarkup  = If(r.IsDBNull(4), 0, r.GetDecimal(4)),
+                                .PRuntime = If(r.IsDBNull(2), 0, Convert.ToInt32(r.GetValue(2))),
+                                .PCostMin = If(r.IsDBNull(3), 0D, Convert.ToDecimal(r.GetValue(3))),
+                                .PMarkup  = If(r.IsDBNull(4), 0D, Convert.ToDecimal(r.GetValue(4))),
                                 .PFil     = If(r.IsDBNull(5), "", r.GetString(5).Trim()),
-                                .PGrams   = If(r.IsDBNull(6), 0, r.GetDecimal(6))
+                                .PGrams   = If(r.IsDBNull(6), 0D, Convert.ToDecimal(r.GetValue(6)))
                             })
                         End While
                     End Using
