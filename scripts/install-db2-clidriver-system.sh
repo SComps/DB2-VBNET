@@ -91,7 +91,7 @@ ok "Clidriver installed to $INSTALL_DIR"
 info "Registering $INSTALL_DIR/lib with ldconfig..."
 echo "$INSTALL_DIR/lib" > "$LDCONF_FILE"
 # ldconfig lives in /sbin on Debian — not always in PATH even as root
-LDCONFIG_BIN=$(command -v ldconfig 2>/dev/null || echo "/sbin/ldconfig")
+LDCONFIG_BIN=$(command -v ldconfig 2>/dev/null || echo "/usr/sbin/ldconfig")
 "$LDCONFIG_BIN"
 ok "ldconfig updated — $INSTALL_DIR/lib is now in the linker cache"
 
