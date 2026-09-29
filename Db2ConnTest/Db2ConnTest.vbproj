@@ -4,22 +4,17 @@
     <OutputType>Exe</OutputType>
     <RootNamespace>Db2ConnTest</RootNamespace>
     <TargetFramework>net10.0</TargetFramework>
-
-    <!-- Native AOT: produce a self-contained native binary on publish -->
-    <PublishAot>true</PublishAot>
     <!--
-      InvariantGlobalization is intentionally NOT set here.
-      The IBM.Data.Db2 driver requires culture support and throws
-      CultureNotFoundException when InvariantGlobalization=true.
+      PublishAot and PublishSingleFile are intentionally NOT set.
+      IBM.Data.Db2 calls Assembly.CodeBase internally, which throws
+      NotSupportedException when bundled as a single-file binary.
+      Use the scripts in the scripts/ folder to publish.
     -->
   </PropertyGroup>
 
   <!--
     IBM Db2 NuGet packages are platform-specific.
     The correct package is selected automatically based on the build OS.
-    Cross-OS AOT compilation is not supported by .NET; to produce a Linux
-    binary, run  dotnet publish -r linux-x64  on a Linux machine or use
-    the GitHub Actions workflow (.github/workflows/build.yml).
   -->
   <ItemGroup Condition="$([MSBuild]::IsOSPlatform('Windows'))">
     <PackageReference Include="Net.IBM.Data.Db2" Version="10.0.0.300" />

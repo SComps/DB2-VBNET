@@ -4,12 +4,18 @@
     <OutputType>Exe</OutputType>
     <RootNamespace>Price3DManager</RootNamespace>
     <TargetFramework>net10.0</TargetFramework>
-    <PublishAot>true</PublishAot>
     <!--
-      InvariantGlobalization must NOT be set — IBM.Data.Db2 requires culture support.
+      PublishAot and PublishSingleFile are intentionally NOT set.
+      IBM.Data.Db2 calls Assembly.CodeBase internally, which throws
+      NotSupportedException when bundled as a single-file binary.
+      Use the scripts in the scripts/ folder to publish.
     -->
   </PropertyGroup>
 
+  <!--
+    IBM Db2 NuGet packages are platform-specific.
+    The correct package is selected automatically based on the build OS.
+  -->
   <ItemGroup Condition="$([MSBuild]::IsOSPlatform('Windows'))">
     <PackageReference Include="Net.IBM.Data.Db2" Version="10.0.0.300" />
   </ItemGroup>

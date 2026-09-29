@@ -83,40 +83,8 @@ if ($dotnetOk) {
     Write-Status ".NET 10 SDK installed" $true
 }
 
-# -- 2. Visual C++ Build Tools (required for AOT native compilation) ----------─
 
-Write-Host ""
-Write-Host "Checking Visual C++ Build Tools / Visual Studio 2026..."
-
-$vsWhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
-$vcOk    = $false
-
-if (Test-Path $vsWhere) {
-    $vsJson = & $vsWhere -latest -products * -requires Microsoft.VisualCpp.Tools.HostX64.TargetX64 -format json 2>&1
-    $vsInfo = $vsJson | ConvertFrom-Json -ErrorAction SilentlyContinue
-    if ($vsInfo) { $vcOk = $true }
-}
-
-if ($vcOk) {
-    Write-Status "Visual C++ build tools already installed" $true
-} else {
-    Write-Status "Visual C++ build tools not found - installing VS 2026 Build Tools" $false
-    Write-Host "  NOTE: This is a large download (~2 GB) and may take several minutes." -ForegroundColor DarkYellow
-    Install-Winget "Visual Studio 2026 Build Tools" "Microsoft.VisualStudio.2026.BuildTools"
-    # Install the required workload components after the base install
-    $vsInstaller = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vs_installer.exe"
-    if (Test-Path $vsInstaller) {
-        Write-Host "  Adding VC++ workload components..."
-        & $vsInstaller modify `
-            --installPath "C:\Program Files\Microsoft Visual Studio\BuildTools" `
-            --add Microsoft.VisualStudio.Workload.VCTools `
-            --add Microsoft.VisualStudio.Component.VC.Tools.x86.x64 `
-            --quiet --norestart
-    }
-    Write-Status "Visual C++ build tools installed" $true
-}
-
-# -- 3. Git --------------------------------------------------------------------
+# -- 2. Git --------------------------------------------------------------------
 
 Write-Host ""
 Write-Host "Checking Git..."
