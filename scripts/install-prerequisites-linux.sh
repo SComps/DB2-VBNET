@@ -1,17 +1,17 @@
 #!/usr/bin/env bash
 # install-prerequisites-linux.sh
 #
-# Installs all prerequisites required to build and run Db2ConnTest on Linux x64.
+# Installs all prerequisites required to build and run DB2-VBNET on Linux x64.
 #
 # Installs:
-#   1. .NET 10 SDK              (via Microsoft package feed)
-#   2. clang                    (AOT native compilation toolchain)
-#   3. zlib development headers (required by the AOT linker)
-#   4. git
+#   1. .NET 10 SDK  (via Microsoft package feed)
+#   2. git
 #
 # Supports:
 #   - Debian / Ubuntu (apt)
 #   - RHEL / Fedora / CentOS Stream (dnf)
+#
+# Note: lsb_release is NOT required — distro info is read from /etc/os-release.
 #
 # Usage:
 #   chmod +x scripts/install-prerequisites-linux.sh
@@ -65,15 +65,34 @@ else
     info ".NET 10 SDK not found — installing via Microsoft package feed"
 
     if [[ "$PKG_MGR" == "apt" ]]; then
-        # Microsoft feed for Debian/Ubuntu
+        # Read distro info without lsb_release
+        . /etc/os-release
+        DISTRO_ID="${ID}"          # e.g. debian, ubuntu
+        DISTRO_VER="${VERSION_ID}" # e.g. 12, 22.04
+
         apt-get update -qq
-        apt-get install -y wget apt-transport-https
-        wget -q https://packages.microsoft.com/config/ubuntu/$(lsb_release -rs)/packages-microsoft-prod.deb \
-            -O /tmp/packages-microsoft-prod.deb
-        dpkg -i /tmp/packages-microsoft-prod.deb
-        rm /tmp/packages-microsoft-prod.deb
-        apt-get update -qq
-        apt-get install -y dotnet-sdk-10.0
+        apt-get install -y wget apt-transport-https ca-certificates
+
+        # Build the Microsoft packages URL based on distro
+        MS_URL="https://packages.microsoft.com/config/${DISTRO_ID}/${DISTRO_VER}/packages-microsoft-prod.deb"
+        info "Fetching Microsoft feed: $MS_URL"
+
+        if wget -q --spider "$MS_URL" 2>/dev/null; then
+            wget -q "$MS_URL" -O /tmp/packages-microsoft-prod.deb
+            dpkg -i /tmp/packages-microsoft-prod.deb
+            rm /tmp/packages-microsoft-prod.deb
+            apt-get update -qq
+            apt-get install -y dotnet-sdk-10.0
+        else
+            # Fallback: use the dotnet-install script (works on any distro/version)
+            info "Microsoft .deb feed not available for ${DISTRO_ID} ${DISTRO_VER} — using dotnet-install.sh fallback"
+            wget -q https://dot.net/v1/dotnet-install.sh -O /tmp/dotnet-install.sh
+            chmod +x /tmp/dotnet-install.sh
+            /tmp/dotnet-install.sh --channel 10.0 --install-dir /usr/local/dotnet
+            rm /tmp/dotnet-install.sh
+            # Make dotnet available system-wide
+            ln -sf /usr/local/dotnet/dotnet /usr/local/bin/dotnet
+        fi
     else
         # Microsoft feed for RHEL/Fedora
         rpm --import https://packages.microsoft.com/keys/microsoft.asc
@@ -90,47 +109,7 @@ EOF
     ok ".NET 10 SDK installed"
 fi
 
-# ── 2. clang (AOT native compilation toolchain) ───────────────────────────────
-echo ""
-echo "Checking clang..."
-
-if command -v clang &>/dev/null; then
-    ok "clang already installed ($(clang --version | head -1))"
-else
-    info "clang not found — installing"
-    if [[ "$PKG_MGR" == "apt" ]]; then
-        apt-get install -y clang
-    else
-        dnf install -y clang
-    fi
-    ok "clang installed"
-fi
-
-# ── 3. zlib development headers (required by AOT linker) ─────────────────────
-echo ""
-echo "Checking zlib development headers..."
-
-if [[ "$PKG_MGR" == "apt" ]]; then
-    ZLIB_PKG="zlib1g-dev"
-    ZLIB_CHECK() { dpkg -l zlib1g-dev 2>/dev/null | grep -q "^ii"; }
-else
-    ZLIB_PKG="zlib-devel"
-    ZLIB_CHECK() { rpm -q zlib-devel &>/dev/null; }
-fi
-
-if ZLIB_CHECK; then
-    ok "zlib development headers already installed"
-else
-    info "zlib dev headers not found — installing $ZLIB_PKG"
-    if [[ "$PKG_MGR" == "apt" ]]; then
-        apt-get install -y zlib1g-dev
-    else
-        dnf install -y zlib-devel
-    fi
-    ok "zlib development headers installed"
-fi
-
-# ── 4. Git ────────────────────────────────────────────────────────────────────
+# ── 2. Git ────────────────────────────────────────────────────────────────────
 echo ""
 echo "Checking Git..."
 
@@ -155,10 +134,10 @@ echo "Next steps:"
 echo "  1. Clone the repo (if not already done):"
 echo "       git clone https://github.com/SComps/DB2-VBNET.git"
 echo ""
-echo "  2. Build and run:"
-echo "       dotnet run --project Db2ConnTest/Db2ConnTest.vbproj"
-echo ""
-echo "  3. AOT publish (Linux native binary):"
+echo "  2. Publish (Linux x64 self-contained):"
 echo "       chmod +x scripts/publish-linux-x64.sh"
 echo "       ./scripts/publish-linux-x64.sh"
+echo ""
+echo "  3. Run:"
+echo "       ./Db2ConnTest/bin/publish/linux-x64/Db2ConnTest"
 echo ""
