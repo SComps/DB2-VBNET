@@ -103,7 +103,9 @@ Namespace Views
 
         Private Sub BuildUi()
             Dim labels = {"Customer ID:", "Name:", "Address 1:", "Address 2:", "City:", "State:", "Zip:", "Phone:", "Email:"}
-            Dim values = {Item.CustId, Item.CName, Item.Addr1, Item.Addr2, Item.City, Item.State, Item.Zip, Item.Phone, Item.Email}
+            Dim values = {If(Item.CustId, ""), If(Item.CName, ""), If(Item.Addr1, ""),
+                          If(Item.Addr2, ""), If(Item.City, ""), If(Item.State, ""),
+                          If(Item.Zip, ""), If(Item.Phone, ""), If(Item.Email, "")}
 
             Dim fields As New List(Of TextField)
             For i = 0 To labels.Length - 1

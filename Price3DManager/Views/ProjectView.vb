@@ -103,8 +103,9 @@ Namespace Views
 
         Private Sub BuildUi()
             Dim labels = {"Project Name:", "File:", "Runtime (min):", "Cost/Min:", "Markup %:", "Filament ID:", "Grams:"}
-            Dim values = {Item.PName, Item.PFile, Item.PRuntime.ToString(), Item.PCostMin.ToString(),
-                          Item.PMarkup.ToString(), Item.PFil, Item.PGrams.ToString()}
+            Dim values = {If(Item.PName, ""), If(Item.PFile, ""), Item.PRuntime.ToString(),
+                          Item.PCostMin.ToString(), Item.PMarkup.ToString(),
+                          If(Item.PFil, ""), Item.PGrams.ToString()}
 
             Dim fields As New List(Of TextField)
             For i = 0 To labels.Length - 1

@@ -23,7 +23,7 @@ Namespace Db
                     Using r = cmd.ExecuteReader()
                         While r.Read()
                             list.Add(New Customer With {
-                                .CustId = r.GetString(0).Trim(),
+                                .CustId = If(r.IsDBNull(0), "", r.GetString(0).Trim()),
                                 .CName  = If(r.IsDBNull(1), "", r.GetString(1).Trim()),
                                 .Addr1  = If(r.IsDBNull(2), "", r.GetString(2).Trim()),
                                 .Addr2  = If(r.IsDBNull(3), "", r.GetString(3).Trim()),

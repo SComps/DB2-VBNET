@@ -129,9 +129,10 @@ Namespace Views
         Private Sub BuildUi()
             Dim labels = {"Item ID:", "Type:", "Color:", "Weight (g):", "Used (g):", "Remaining (g):",
                           "Purchased (g):", "Vendor:", "Vendor ID:", "Reorder?:", "Last Date:"}
-            Dim values = {Item.ItemId, Item.ItType, Item.ItColor, Item.ItWeigh.ToString(),
-                          Item.ItUsed.ToString(), Item.ItRemain.ToString(), Item.ItPurch.ToString(),
-                          Item.ItVendor, Item.ItVendorId, Item.ItVReorder, Item.ItLastDt}
+            Dim values = {If(Item.ItemId, ""), If(Item.ItType, ""), If(Item.ItColor, ""),
+                          Item.ItWeigh.ToString(), Item.ItUsed.ToString(), Item.ItRemain.ToString(),
+                          Item.ItPurch.ToString(), If(Item.ItVendor, ""), If(Item.ItVendorId, ""),
+                          If(Item.ItVReorder, ""), If(Item.ItLastDt, "")}
 
             Dim fields As New List(Of TextField)
             For i = 0 To labels.Length - 1
