@@ -7,7 +7,11 @@
 
     <!-- Native AOT: produce a self-contained native binary on publish -->
     <PublishAot>true</PublishAot>
-    <InvariantGlobalization>true</InvariantGlobalization>
+    <!--
+      InvariantGlobalization is intentionally NOT set here.
+      The IBM.Data.Db2 driver requires culture support and throws
+      CultureNotFoundException when InvariantGlobalization=true.
+    -->
   </PropertyGroup>
 
   <!--
@@ -23,6 +27,11 @@
 
   <ItemGroup Condition="$([MSBuild]::IsOSPlatform('Linux'))">
     <PackageReference Include="Net.IBM.Data.Db2-lnx" Version="10.0.0.300" />
+  </ItemGroup>
+
+  <!-- Terminal.Gui is cross-platform -->
+  <ItemGroup>
+    <PackageReference Include="Terminal.Gui" Version="2.5.0" />
   </ItemGroup>
 
 </Project>

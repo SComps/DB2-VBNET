@@ -1,3 +1,4 @@
 <Solution>
   <Project Path="Db2ConnTest/Db2ConnTest.vbproj" />
+  <Project Path="Price3DManager/Price3DManager.vbproj" />
 </Solution>
