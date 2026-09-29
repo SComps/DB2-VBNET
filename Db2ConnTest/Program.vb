@@ -1,6 +1,5 @@
 Imports IBM.Data.Db2
 Imports System.IO
-Imports System.Reflection
 
 Module Program
 
@@ -56,7 +55,7 @@ Module Program
     ''' Returns True on success.
     ''' </summary>
     Private Function BindCliPackages() As Boolean
-        Dim exeDir  As String = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)
+        Dim exeDir  As String = AppContext.BaseDirectory
         Dim db2cli  As String = Path.Combine(exeDir, "clidriver", "bin", "db2cli.exe")
         Dim bndDir  As String = Path.Combine(exeDir, "clidriver", "bnd")
 

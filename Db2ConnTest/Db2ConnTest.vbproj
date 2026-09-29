@@ -1,13 +1,28 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <RootNamespace>Db2ConnTest</RootNamespace>
     <TargetFramework>net10.0</TargetFramework>
+
+    <!-- Native AOT: produce a self-contained native binary on publish -->
+    <PublishAot>true</PublishAot>
+    <InvariantGlobalization>true</InvariantGlobalization>
   </PropertyGroup>
 
-  <ItemGroup>
+  <!--
+    IBM Db2 NuGet packages are platform-specific.
+    The correct package is selected automatically based on the build OS.
+    Cross-OS AOT compilation is not supported by .NET; to produce a Linux
+    binary, run  dotnet publish -r linux-x64  on a Linux machine or use
+    the GitHub Actions workflow (.github/workflows/build.yml).
+  -->
+  <ItemGroup Condition="$([MSBuild]::IsOSPlatform('Windows'))">
     <PackageReference Include="Net.IBM.Data.Db2" Version="10.0.0.300" />
+  </ItemGroup>
+
+  <ItemGroup Condition="$([MSBuild]::IsOSPlatform('Linux'))">
+    <PackageReference Include="Net.IBM.Data.Db2-lnx" Version="10.0.0.300" />
   </ItemGroup>
 
 </Project>
