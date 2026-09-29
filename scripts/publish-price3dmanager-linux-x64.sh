@@ -32,6 +32,19 @@ dotnet publish "$PROJECT" \
     --self-contained true \
     -p:PublishSingleFile=false
 
+# Write a launcher script that sets LD_LIBRARY_PATH for the IBM clidriver
+LAUNCHER="$OUTPUT/run-Price3DManager.sh"
+cat > "$LAUNCHER" << 'LAUNCHER_EOF'
+#!/usr/bin/env bash
+# Launcher for Price3DManager — sets LD_LIBRARY_PATH so the IBM clidriver
+# native libdb2.so can be found at runtime on Linux.
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+export LD_LIBRARY_PATH="$SCRIPT_DIR/clidriver/lib:${LD_LIBRARY_PATH:-}"
+exec "$SCRIPT_DIR/Price3DManager" "$@"
+LAUNCHER_EOF
+chmod +x "$LAUNCHER"
+
 echo ""
 echo "Publish complete."
-echo "Executable: $OUTPUT/Price3DManager"
+echo "Executable : $OUTPUT/Price3DManager"
+echo "Launcher   : $LAUNCHER  (use this to run — sets LD_LIBRARY_PATH)"
