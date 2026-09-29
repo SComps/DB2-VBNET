@@ -40,19 +40,24 @@ Namespace Views
                 .Width = TDim.Fill(1),
                 .Height = TDim.Fill(4)
             }
+            AddHandler _list.OpenSelectedItem, AddressOf OnListEnter
             Add(_list)
 
-            Dim btnAdd  As New Button("_Add")    With {.X = 1,                    .Y = Pos.AnchorEnd(1)}
-            Dim btnEdit As New Button("_Edit")   With {.X = Pos.Right(btnAdd) + 1, .Y = Pos.AnchorEnd(1)}
-            Dim btnDel  As New Button("_Delete") With {.X = Pos.Right(btnEdit) + 1,.Y = Pos.AnchorEnd(1)}
-            Dim btnBack As New Button("_Back")   With {.X = Pos.Right(btnDel) + 1, .Y = Pos.AnchorEnd(1)}
+            Dim btnAdd  As New Button("_Add")    With {.X = 1,                     .Y = Pos.AnchorEnd(1)}
+            Dim btnEdit As New Button("_Edit")   With {.X = Pos.Right(btnAdd) + 1,  .Y = Pos.AnchorEnd(1)}
+            Dim btnDel  As New Button("_Delete") With {.X = Pos.Right(btnEdit) + 1, .Y = Pos.AnchorEnd(1)}
+            Dim btnBack As New Button("_Back")   With {.X = Pos.Right(btnDel) + 1,  .Y = Pos.AnchorEnd(1)}
 
             AddHandler btnAdd.Clicked,  AddressOf OnAdd
             AddHandler btnEdit.Clicked, AddressOf OnEdit
             AddHandler btnDel.Clicked,  AddressOf OnDelete
-            AddHandler btnBack.Clicked, AddressOf OnBack
+            AddHandler btnBack.Clicked, Sub() Application.RequestStop()
 
             Add(btnAdd, btnEdit, btnDel, btnBack)
+        End Sub
+
+        Private Sub OnListEnter(e As ListViewItemEventArgs)
+            OnEdit()
         End Sub
 
         Private Sub OnAdd()
@@ -61,8 +66,7 @@ Namespace Views
             If dlg.Saved Then
                 Try
                     FilamentRepo.Upsert(dlg.Item, True)
-                    LoadData()
-                    _list.SetSource(ToOC())
+                    LoadData() : _list.SetSource(ToOC())
                 Catch ex As Exception
                     MessageBox.ErrorQuery(60, 7, "Save Error", ex.Message, "OK")
                 End Try
@@ -78,8 +82,7 @@ Namespace Views
             If dlg.Saved Then
                 Try
                     FilamentRepo.Upsert(dlg.Item, False)
-                    LoadData()
-                    _list.SetSource(ToOC())
+                    LoadData() : _list.SetSource(ToOC())
                 Catch ex As Exception
                     MessageBox.ErrorQuery(60, 7, "Save Error", ex.Message, "OK")
                 End Try
@@ -95,16 +98,11 @@ Namespace Views
             If res = 0 Then
                 Try
                     FilamentRepo.Delete(item.ItemId)
-                    LoadData()
-                    _list.SetSource(ToOC())
+                    LoadData() : _list.SetSource(ToOC())
                 Catch ex As Exception
                     MessageBox.ErrorQuery(60, 7, "Delete Error", ex.Message, "OK")
                 End Try
             End If
-        End Sub
-
-        Private Sub OnBack()
-            Application.RequestStop()
         End Sub
 
     End Class
@@ -112,8 +110,19 @@ Namespace Views
     Public Class FilamentEditDialog
         Inherits Dialog
 
-        Public ReadOnly Property Item  As FilamentItem
+        Private _item  As FilamentItem
+        Private _saved As Boolean
+
+        Public ReadOnly Property Item As FilamentItem
+            Get
+                Return _item
+            End Get
+        End Property
         Public ReadOnly Property Saved As Boolean
+            Get
+                Return _saved
+            End Get
+        End Property
 
         Private _fItemId, _fType, _fColor, _fWeigh, _fUsed, _fRemain, _fPurch,
                 _fVendor, _fVendorId, _fVReorder, _fLastDt As TextField
@@ -121,7 +130,7 @@ Namespace Views
 
         Public Sub New(item As FilamentItem, isNew As Boolean)
             MyBase.New(If(isNew, "Add Filament", "Edit Filament"), 62, 18)
-            Item   = item
+            _item  = item
             _isNew = isNew
             BuildUi()
         End Sub
@@ -129,10 +138,10 @@ Namespace Views
         Private Sub BuildUi()
             Dim labels = {"Item ID:", "Type:", "Color:", "Weight (g):", "Used (g):", "Remaining (g):",
                           "Purchased (g):", "Vendor:", "Vendor ID:", "Reorder?:", "Last Date:"}
-            Dim values = {If(Item.ItemId, ""), If(Item.ItType, ""), If(Item.ItColor, ""),
-                          Item.ItWeigh.ToString(), Item.ItUsed.ToString(), Item.ItRemain.ToString(),
-                          Item.ItPurch.ToString(), If(Item.ItVendor, ""), If(Item.ItVendorId, ""),
-                          If(Item.ItVReorder, ""), If(Item.ItLastDt, "")}
+            Dim values = {If(_item.ItemId, ""), If(_item.ItType, ""), If(_item.ItColor, ""),
+                          _item.ItWeigh.ToString(), _item.ItUsed.ToString(), _item.ItRemain.ToString(),
+                          _item.ItPurch.ToString(), If(_item.ItVendor, ""), If(_item.ItVendorId, ""),
+                          If(_item.ItVReorder, ""), If(_item.ItLastDt, "")}
 
             Dim fields As New List(Of TextField)
             For i = 0 To labels.Length - 1
@@ -145,9 +154,9 @@ Namespace Views
                 fields.Add(tf)
             Next
 
-            _fItemId = fields(0)   : _fType     = fields(1)  : _fColor    = fields(2)
-            _fWeigh  = fields(3)   : _fUsed      = fields(4)  : _fRemain   = fields(5)
-            _fPurch  = fields(6)   : _fVendor    = fields(7)  : _fVendorId = fields(8)
+            _fItemId   = fields(0) : _fType     = fields(1)  : _fColor    = fields(2)
+            _fWeigh    = fields(3) : _fUsed      = fields(4)  : _fRemain   = fields(5)
+            _fPurch    = fields(6) : _fVendor    = fields(7)  : _fVendorId = fields(8)
             _fVReorder = fields(9) : _fLastDt    = fields(10)
 
             Dim btnSave   As New Button("_Save")
@@ -159,18 +168,18 @@ Namespace Views
         End Sub
 
         Private Sub OnSave()
-            Item.ItemId     = _fItemId.Text.ToString()
-            Item.ItType     = _fType.Text.ToString()
-            Item.ItColor    = _fColor.Text.ToString()
-            Item.ItWeigh    = ParseDec(_fWeigh.Text.ToString())
-            Item.ItUsed     = ParseDec(_fUsed.Text.ToString())
-            Item.ItRemain   = ParseDec(_fRemain.Text.ToString())
-            Item.ItPurch    = ParseDec(_fPurch.Text.ToString())
-            Item.ItVendor   = _fVendor.Text.ToString()
-            Item.ItVendorId = _fVendorId.Text.ToString()
-            Item.ItVReorder = _fVReorder.Text.ToString()
-            Item.ItLastDt   = _fLastDt.Text.ToString()
-            _Saved = True
+            _item.ItemId     = _fItemId.Text.ToString()
+            _item.ItType     = _fType.Text.ToString()
+            _item.ItColor    = _fColor.Text.ToString()
+            _item.ItWeigh    = ParseDec(_fWeigh.Text.ToString())
+            _item.ItUsed     = ParseDec(_fUsed.Text.ToString())
+            _item.ItRemain   = ParseDec(_fRemain.Text.ToString())
+            _item.ItPurch    = ParseDec(_fPurch.Text.ToString())
+            _item.ItVendor   = _fVendor.Text.ToString()
+            _item.ItVendorId = _fVendorId.Text.ToString()
+            _item.ItVReorder = _fVReorder.Text.ToString()
+            _item.ItLastDt   = _fLastDt.Text.ToString()
+            _saved = True
             Application.RequestStop()
         End Sub
 
