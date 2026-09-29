@@ -53,7 +53,7 @@ Namespace Db
             If Not IO.File.Exists(db2cli) Then
                 ' Fall back to DB2_CLI_DRIVER_INSTALL_PATH or system default
                 Dim sysDriver As String = Environment.GetEnvironmentVariable("DB2_CLI_DRIVER_INSTALL_PATH")
-                If String.IsNullOrEmpty(sysDriver) Then sysDriver = "/opt/ibm/db2clidriver"
+                If String.IsNullOrEmpty(sysDriver) Then sysDriver = "/usr/lib/ibm/db2clidriver"
                 db2cli = IO.Path.Combine(sysDriver, "bin", cliBin)
                 bndDir = IO.Path.Combine(sysDriver, "bnd")
             End If

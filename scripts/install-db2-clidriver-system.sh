@@ -45,7 +45,7 @@ if [[ $EUID -ne 0 ]]; then
     exit 1
 fi
 
-INSTALL_DIR="/opt/ibm/db2clidriver"
+INSTALL_DIR="/usr/lib/ibm/db2clidriver"
 LDCONF_FILE="/etc/ld.so.conf.d/ibm-db2-clidriver.conf"
 
 echo ""

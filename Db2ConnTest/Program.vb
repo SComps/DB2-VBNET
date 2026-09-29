@@ -67,7 +67,7 @@ Module Program
 
         If Not File.Exists(db2cli) Then
             Dim sysDriver As String = Environment.GetEnvironmentVariable("DB2_CLI_DRIVER_INSTALL_PATH")
-            If String.IsNullOrEmpty(sysDriver) Then sysDriver = "/opt/ibm/db2clidriver"
+            If String.IsNullOrEmpty(sysDriver) Then sysDriver = "/usr/lib/ibm/db2clidriver"
             db2cli = Path.Combine(sysDriver, "bin", cliBin)
             bndDir = Path.Combine(sysDriver, "bnd")
         End If
