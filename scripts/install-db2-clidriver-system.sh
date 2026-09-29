@@ -95,26 +95,33 @@ LDCONFIG_BIN=$(command -v ldconfig 2>/dev/null || echo "/usr/sbin/ldconfig")
 "$LDCONFIG_BIN"
 ok "ldconfig updated — $INSTALL_DIR/lib is now in the linker cache"
 
-# ── Set DB2_CLI_DRIVER_INSTALL_PATH system-wide ───────────────────────────────
-info "Setting DB2_CLI_DRIVER_INSTALL_PATH in /etc/environment..."
-# Remove any previous entry then append the current value
+# ── Set environment variables system-wide ────────────────────────────────────
+info "Setting environment variables in /etc/environment..."
+
+# DB2_CLI_DRIVER_INSTALL_PATH — tells IBM driver where clidriver root is
 sed -i '/^DB2_CLI_DRIVER_INSTALL_PATH=/d' /etc/environment
 echo "DB2_CLI_DRIVER_INSTALL_PATH=$INSTALL_DIR" >> /etc/environment
-# Also export for the current shell session
 export DB2_CLI_DRIVER_INSTALL_PATH="$INSTALL_DIR"
 ok "DB2_CLI_DRIVER_INSTALL_PATH=$INSTALL_DIR"
+
+# LD_LIBRARY_PATH — .NET's native library resolver checks app dir then this;
+# the IBM driver DllImport does not go through ldconfig so we must set this.
+sed -i '/^LD_LIBRARY_PATH=/d' /etc/environment
+echo "LD_LIBRARY_PATH=$INSTALL_DIR/lib" >> /etc/environment
+export LD_LIBRARY_PATH="$INSTALL_DIR/lib"
+ok "LD_LIBRARY_PATH=$INSTALL_DIR/lib"
 
 echo ""
 echo "============================================"
 echo -e "${GREEN}IBM Db2 clidriver installed system-wide.${NC}"
 echo ""
-echo "  Install path : $INSTALL_DIR"
-echo "  ldconfig     : $INSTALL_DIR/lib registered"
-echo "  Environment  : DB2_CLI_DRIVER_INSTALL_PATH set in /etc/environment"
+echo "  Install path        : $INSTALL_DIR"
+echo "  ldconfig            : $INSTALL_DIR/lib registered"
+echo "  DB2_CLI_DRIVER_INSTALL_PATH : $INSTALL_DIR"
+echo "  LD_LIBRARY_PATH     : $INSTALL_DIR/lib"
 echo ""
-echo "libdb2.so is now available to all applications on this machine."
-echo "No LD_LIBRARY_PATH, no wrapper scripts, no per-app clidriver folder needed."
-echo ""
-echo "Re-login (or run: source /etc/environment) to pick up the env var"
-echo "in interactive shells."
+echo "Both variables are written to /etc/environment."
+echo "Re-login (or run: source /etc/environment) to pick them up in"
+echo "interactive shells. They take effect immediately for new processes"
+echo "started from this session."
 echo ""
