@@ -32,19 +32,9 @@ dotnet publish "$PROJECT" \
     --self-contained true \
     -p:PublishSingleFile=false
 
-# Write a launcher script that sets LD_LIBRARY_PATH for the IBM clidriver
-LAUNCHER="$OUTPUT/run-Db2ConnTest.sh"
-cat > "$LAUNCHER" << 'LAUNCHER_EOF'
-#!/usr/bin/env bash
-# Launcher for Db2ConnTest — sets LD_LIBRARY_PATH so the IBM clidriver
-# native libdb2.so can be found at runtime on Linux.
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-export LD_LIBRARY_PATH="$SCRIPT_DIR/clidriver/lib:${LD_LIBRARY_PATH:-}"
-exec "$SCRIPT_DIR/Db2ConnTest" "$@"
-LAUNCHER_EOF
-chmod +x "$LAUNCHER"
-
 echo ""
 echo "Publish complete."
-echo "Executable : $OUTPUT/Db2ConnTest"
-echo "Launcher   : $LAUNCHER  (use this to run — sets LD_LIBRARY_PATH)"
+echo "Executable: $OUTPUT/Db2ConnTest"
+echo ""
+echo "NOTE: Run install-db2-clidriver-system.sh once on this machine to"
+echo "      register libdb2.so system-wide (no LD_LIBRARY_PATH needed)."

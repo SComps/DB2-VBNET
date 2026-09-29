@@ -39,9 +39,25 @@ Namespace Db
         End Function
 
         Private Sub BindCliPackages()
+            ' Locate db2cli and bnd files.
+            ' Priority: local clidriver next to the exe (Windows publish),
+            ' then DB2_CLI_DRIVER_INSTALL_PATH env var,
+            ' then the system-wide install at /opt/ibm/db2clidriver.
             Dim exeDir As String = AppContext.BaseDirectory
-            Dim db2cli As String = IO.Path.Combine(exeDir, "clidriver", "bin", "db2cli.exe")
+            Dim cliBin As String = If(Runtime.InteropServices.RuntimeInformation.IsOSPlatform(
+                                       Runtime.InteropServices.OSPlatform.Windows), "db2cli.exe", "db2cli")
+
+            Dim db2cli As String = IO.Path.Combine(exeDir, "clidriver", "bin", cliBin)
             Dim bndDir As String = IO.Path.Combine(exeDir, "clidriver", "bnd")
+
+            If Not IO.File.Exists(db2cli) Then
+                ' Fall back to DB2_CLI_DRIVER_INSTALL_PATH or system default
+                Dim sysDriver As String = Environment.GetEnvironmentVariable("DB2_CLI_DRIVER_INSTALL_PATH")
+                If String.IsNullOrEmpty(sysDriver) Then sysDriver = "/opt/ibm/db2clidriver"
+                db2cli = IO.Path.Combine(sysDriver, "bin", cliBin)
+                bndDir = IO.Path.Combine(sysDriver, "bnd")
+            End If
+
             If Not IO.File.Exists(db2cli) Then Return
             Dim target As String = $"{Location}:{Server}:{Port}"
             For Each bndFile In IO.Directory.GetFiles(bndDir, "*.bnd")
