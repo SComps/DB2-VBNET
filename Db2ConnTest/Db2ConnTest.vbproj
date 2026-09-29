@@ -14,13 +14,15 @@
 
   <!--
     IBM Db2 NuGet packages are platform-specific.
-    The correct package is selected automatically based on the build OS.
+    Use the Linux package when building ON Linux, OR when cross-publishing
+    TO a Linux runtime from Windows (RuntimeIdentifier starts with "linux").
+    Otherwise use the Windows package.
   -->
-  <ItemGroup Condition="$([MSBuild]::IsOSPlatform('Windows'))">
+  <ItemGroup Condition="$([MSBuild]::IsOSPlatform('Windows')) And !$(RuntimeIdentifier.StartsWith('linux'))">
     <PackageReference Include="Net.IBM.Data.Db2" Version="10.0.0.300" />
   </ItemGroup>
 
-  <ItemGroup Condition="$([MSBuild]::IsOSPlatform('Linux'))">
+  <ItemGroup Condition="$([MSBuild]::IsOSPlatform('Linux')) Or $(RuntimeIdentifier.StartsWith('linux'))">
     <PackageReference Include="Net.IBM.Data.Db2-lnx" Version="10.0.0.300" />
   </ItemGroup>
 
