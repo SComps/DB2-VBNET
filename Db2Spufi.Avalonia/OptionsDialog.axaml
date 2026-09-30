@@ -1,0 +1,51 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="Db2Spufi.Avalonia.OptionsDialog"
+        Title="SPUFI Execution Options"
+        Width="460" Height="360"
+        CanResize="False"
+        WindowStartupLocation="CenterOwner">
+    <Grid Margin="20" RowDefinitions="Auto,Auto,Auto,Auto,Auto,*,Auto">
+        <!-- Delimiter -->
+        <Grid Grid.Row="0" Margin="0,0,0,14" ColumnDefinitions="200,*">
+            <TextBlock Grid.Column="0" Text="Statement Delimiter:" VerticalAlignment="Center"/>
+            <TextBox Name="TxtDelimiter" Grid.Column="1" Width="80" HorizontalAlignment="Left" MaxLength="5"/>
+        </Grid>
+
+        <!-- Max Rows -->
+        <Grid Grid.Row="1" Margin="0,0,0,14" ColumnDefinitions="200,*">
+            <TextBlock Grid.Column="0" Text="Max Rows per Query (0 = all):" VerticalAlignment="Center"/>
+            <NumericUpDown Name="NumMaxRows" Grid.Column="1" Width="140" HorizontalAlignment="Left"
+                           Minimum="0" Maximum="1000000" Increment="100" FormatString="0"/>
+        </Grid>
+
+        <!-- Commit Mode -->
+        <Grid Grid.Row="2" Margin="0,0,0,14" ColumnDefinitions="200,*">
+            <TextBlock Grid.Column="0" Text="Transaction Commit Mode:" VerticalAlignment="Center"/>
+            <ComboBox Name="CboCommitMode" Grid.Column="1" HorizontalAlignment="Stretch">
+                <ComboBoxItem Content="Auto-Commit per statement"/>
+                <ComboBoxItem Content="Commit on completion"/>
+                <ComboBoxItem Content="Manual"/>
+            </ComboBox>
+        </Grid>
+
+        <!-- On Error -->
+        <Grid Grid.Row="3" Margin="0,0,0,14" ColumnDefinitions="200,*">
+            <TextBlock Grid.Column="0" Text="Action on Error:" VerticalAlignment="Center"/>
+            <ComboBox Name="CboOnError" Grid.Column="1" HorizontalAlignment="Stretch">
+                <ComboBoxItem Content="Halt execution on error"/>
+                <ComboBoxItem Content="Continue executing script"/>
+            </ComboBox>
+        </Grid>
+
+        <!-- Echo SQL -->
+        <CheckBox Name="ChkEchoSql" Grid.Row="4" Margin="0,4,0,14"
+                  Content="Echo input SQL statements in SPUFI report"/>
+
+        <!-- Action Buttons -->
+        <StackPanel Grid.Row="6" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="10">
+            <Button Name="BtnOk" Content="OK" Width="80" HorizontalContentAlignment="Center" Classes="accent" Click="OnOkClick"/>
+            <Button Name="BtnCancel" Content="Cancel" Width="80" HorizontalContentAlignment="Center" Click="OnCancelClick"/>
+        </StackPanel>
+    </Grid>
+</Window>

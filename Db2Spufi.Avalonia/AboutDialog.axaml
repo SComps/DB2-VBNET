@@ -1,0 +1,29 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="Db2Spufi.Avalonia.AboutDialog"
+        Title="About SPUFI for Db2"
+        Width="480" Height="420"
+        WindowStartupLocation="CenterOwner"
+        CanResize="False">
+    <Grid Margin="20" RowDefinitions="Auto,*,Auto">
+        <StackPanel Grid.Row="0" Spacing="4" Margin="0,0,0,15">
+            <TextBlock Text="SPUFI for Db2" FontSize="20" FontWeight="Bold" Foreground="#107C41"/>
+            <TextBlock Text="SQL Processing Facility for IBM Db2 (Avalonia Edition)" FontSize="12" Foreground="Gray"/>
+        </StackPanel>
+
+        <Border Grid.Row="1" BorderBrush="#E0E0E0" BorderThickness="1" CornerRadius="4" Padding="12" Background="#FAFAFA">
+            <ScrollViewer>
+                <StackPanel Spacing="10">
+                    <TextBlock Text="Targeting IBM Db2 for z/OS &amp; Db2 LUW" FontWeight="SemiBold"/>
+                    <TextBlock Text="Built on .NET 10 | Avalonia UI 12&#x0a;Driver: Net.IBM.Data.Db2 (DRDA Protocol)&#x0a;Shared Core Library: Db2Spufi.Core" TextWrapping="Wrap"/>
+                    <Separator Margin="0,4"/>
+                    <TextBlock Text="Key Features:" FontWeight="SemiBold"/>
+                    <TextBlock Text="• Cross-platform desktop interface (Windows, Linux, macOS)&#x0a;• Direct SQL script execution with delimiter detection&#x0a;• Classic mainframe formatted SPUFI output reports&#x0a;• Interactive DataGrid query tabular results&#x0a;• Connection profile manager with automatic CLI package binding&#x0a;• CSV export for query datasets" TextWrapping="Wrap"/>
+                </StackPanel>
+            </ScrollViewer>
+        </Border>
+
+        <Button Grid.Row="2" Content="Close" Width="90" HorizontalAlignment="Right" HorizontalContentAlignment="Center"
+                Margin="0,15,0,0" Classes="accent" Click="OnCloseClick"/>
+    </Grid>
+</Window>

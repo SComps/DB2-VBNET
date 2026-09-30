@@ -1,0 +1,160 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Db2Spufi.Avalonia"
+        xmlns:models="clr-namespace:Db2Spufi.Core.Models;assembly=Db2Spufi.Core"
+        mc:Ignorable="d" d:DesignWidth="1100" d:DesignHeight="750"
+        x:Class="Db2Spufi.Avalonia.MainWindow"
+        Title="SPUFI for Db2 — SQL Processing Facility (Avalonia)"
+        Width="1100" Height="750"
+        WindowStartupLocation="CenterScreen">
+
+    <DockPanel LastChildFill="True">
+        <!-- ── Menu Bar ──────────────────────────────────────────────────────────── -->
+        <Menu DockPanel.Dock="Top">
+            <MenuItem Header="_File">
+                <MenuItem Header="_New Script" InputGesture="Ctrl+N" Click="OnNewScript"/>
+                <MenuItem Header="_Open Script..." InputGesture="Ctrl+O" Click="OnOpenScript"/>
+                <MenuItem Header="_Save Script" InputGesture="Ctrl+S" Click="OnSaveScript"/>
+                <MenuItem Header="Save Script _As..." Click="OnSaveScriptAs"/>
+                <Separator/>
+                <MenuItem Header="Save SPUFI _Output Log..." Click="OnSaveSpufiLog"/>
+                <MenuItem Header="Export Active Grid to _CSV..." Click="OnExportActiveGridCsv"/>
+                <Separator/>
+                <MenuItem Header="E_xit" InputGesture="Alt+F4" Click="OnExit"/>
+            </MenuItem>
+
+            <MenuItem Header="_Query">
+                <MenuItem Header="Execute _All" InputGesture="F5" Click="OnExecuteAll"/>
+                <MenuItem Header="Execute _Selected" InputGesture="Ctrl+F5" Click="OnExecuteSelected"/>
+                <MenuItem Header="_Cancel Execution" Click="OnCancelExecution"/>
+            </MenuItem>
+
+            <MenuItem Header="_Connection">
+                <MenuItem Header="_Manage Profiles..." Click="OnManageProfiles"/>
+                <MenuItem Header="_Test Connection" Click="OnQuickTestConnection"/>
+            </MenuItem>
+
+            <MenuItem Header="_Options">
+                <MenuItem Header="_SPUFI Execution Options..." Click="OnShowOptions"/>
+            </MenuItem>
+
+            <MenuItem Header="_Help">
+                <MenuItem Header="_About SPUFI for Db2" Click="OnAbout"/>
+            </MenuItem>
+        </Menu>
+
+        <!-- ── Tool Bar ─────────────────────────────────────────────────────────── -->
+        <Border DockPanel.Dock="Top" BorderBrush="#E0E0E0" BorderThickness="0,0,0,1" Padding="6,4" Background="#F8F9FA">
+            <WrapPanel Orientation="Horizontal" VerticalAlignment="Center">
+                <TextBlock Text="Profile: " VerticalAlignment="Center" Margin="4,0,4,0" FontWeight="SemiBold"/>
+                <ComboBox Name="CboProfiles" Width="220" Margin="0,0,8,0" SelectionChanged="OnProfileChanged">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate x:DataType="models:ConnectionProfile">
+                            <TextBlock Text="{Binding Name}"/>
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+
+                <Button Name="BtnTestConn" Content="Test" Margin="0,0,6,0" Click="OnQuickTestConnection" ToolTip.Tip="Quick test connection to active profile"/>
+                <Button Name="BtnManageProfiles" Content="Profiles..." Margin="0,0,12,0" Click="OnManageProfiles" ToolTip.Tip="Manage Db2 connection profiles"/>
+
+                <Rectangle Width="1" Height="22" Fill="#D0D0D0" Margin="4,0,12,0" VerticalAlignment="Center"/>
+
+                <Button Name="BtnOpenFile" Content="Open" Margin="0,0,6,0" Click="OnOpenScript" ToolTip.Tip="Open SQL Script File (Ctrl+O)"/>
+                <Button Name="BtnSaveFile" Content="Save" Margin="0,0,12,0" Click="OnSaveScript" ToolTip.Tip="Save SQL Script File (Ctrl+S)"/>
+
+                <Rectangle Width="1" Height="22" Fill="#D0D0D0" Margin="4,0,12,0" VerticalAlignment="Center"/>
+
+                <Button Name="BtnRunAll" Content="▶ Execute (F5)" FontWeight="Bold" Foreground="#107C41" Margin="0,0,6,0"
+                        Click="OnExecuteAll" ToolTip.Tip="Execute entire SQL script (F5)"/>
+                <Button Name="BtnRunSelected" Content="▶ Run Selection" Margin="0,0,6,0"
+                        Click="OnExecuteSelected" ToolTip.Tip="Execute selected SQL text only (Ctrl+F5)"/>
+                <Button Name="BtnCancelRun" Content="■ Stop" Foreground="#D13438" Margin="0,0,12,0"
+                        IsEnabled="False" Click="OnCancelExecution" ToolTip.Tip="Cancel running query execution"/>
+
+                <Rectangle Width="1" Height="22" Fill="#D0D0D0" Margin="4,0,12,0" VerticalAlignment="Center"/>
+
+                <Button Name="BtnOptions" Content="Options..." Click="OnShowOptions" ToolTip.Tip="Configure delimiter, max rows, commit mode"/>
+            </WrapPanel>
+        </Border>
+
+        <!-- ── Status Bar ───────────────────────────────────────────────────────── -->
+        <Border DockPanel.Dock="Bottom" BorderBrush="#E0E0E0" BorderThickness="0,1,0,0" Padding="8,4" Background="#F0F2F5">
+            <Grid ColumnDefinitions="Auto,12,*,12,Auto,12,Auto">
+                <!-- Profile / Server Info -->
+                <TextBlock Name="StatusConnLabel" Grid.Column="0" Text="No profile selected"
+                           VerticalAlignment="Center" FontWeight="Medium" Foreground="#323130"/>
+
+                <Rectangle Grid.Column="1" Width="1" Height="16" Fill="#D0D0D0" VerticalAlignment="Center"/>
+
+                <!-- Execution status message -->
+                <TextBlock Name="StatusExecutionLabel" Grid.Column="2" Text="Ready"
+                           VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+
+                <ProgressBar Name="StatusProgressBar" Grid.Column="4" Width="110" Height="14"
+                             IsIndeterminate="True" IsVisible="False" VerticalAlignment="Center"/>
+
+                <Rectangle Grid.Column="5" Width="1" Height="16" Fill="#D0D0D0" VerticalAlignment="Center"/>
+
+                <!-- Stats -->
+                <TextBlock Name="StatusStatsLabel" Grid.Column="6" Text="0 statements | 0.00s"
+                           VerticalAlignment="Center" Foreground="#605E5C"/>
+            </Grid>
+        </Border>
+
+        <!-- ── Main Workspace ───────────────────────────────────────────────────── -->
+        <Grid RowDefinitions="*,6,*">
+            <!-- Top Editor Pane -->
+            <Grid Grid.Row="0" RowDefinitions="Auto,*">
+                <Border Grid.Row="0" Background="#F3F3F3" Padding="8,4" BorderBrush="#E0E0E0" BorderThickness="0,0,0,1">
+                    <TextBlock Name="LblEditorInfo" Text="SQL Input (Enter statements separated by ';' or load file):"
+                               FontWeight="SemiBold" VerticalAlignment="Center"/>
+                </Border>
+                <TextBox Name="TxtSqlInput" Grid.Row="1" AcceptsReturn="True" AcceptsTab="True"
+                         FontFamily="Consolas, Cascadia Code, Courier New" FontSize="13"
+                         TextWrapping="NoWrap" BorderThickness="0"/>
+            </Grid>
+
+            <!-- Splitter -->
+            <GridSplitter Grid.Row="1" Height="6" HorizontalAlignment="Stretch" Background="#E5E5E5" ResizeDirection="Rows"/>
+
+            <!-- Bottom Results Tabs -->
+            <TabControl Name="TabResults" Grid.Row="2" Margin="0,2,0,0">
+                <!-- SPUFI Text Output -->
+                <TabItem Header="SPUFI Text Output">
+                    <Grid RowDefinitions="Auto,*">
+                        <Border Grid.Row="0" Background="#F9F9F9" Padding="6,3" BorderBrush="#E8E8E8" BorderThickness="0,0,0,1">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <Button Name="BtnCopyLog" Content="Copy All" Click="OnCopyLogClick"/>
+                                <Button Name="BtnSaveLog" Content="Save Log As..." Click="OnSaveSpufiLog"/>
+                                <Button Name="BtnClearLog" Content="Clear Log" Click="OnClearLogClick"/>
+                            </StackPanel>
+                        </Border>
+                        <TextBox Name="TxtSpufiOutput" Grid.Row="1" IsReadOnly="True" AcceptsReturn="True"
+                                 FontFamily="Consolas, Cascadia Code, Courier New" FontSize="12"
+                                 TextWrapping="NoWrap" BorderThickness="0"/>
+                    </Grid>
+                </TabItem>
+
+                <!-- Result Grids -->
+                <TabItem Header="Result Grids">
+                    <TabControl Name="TabDataGrids">
+                        <TabItem Header="No Data">
+                            <TextBlock Text="No SELECT queries produced tabular results yet.&#x0a;Execute a SELECT query or review the 'SPUFI Text Output' tab."
+                                       HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Gray" TextAlignment="Center"/>
+                        </TabItem>
+                    </TabControl>
+                </TabItem>
+
+                <!-- Messages & Diagnostics -->
+                <TabItem Header="Messages &amp; Diagnostics">
+                    <TextBox Name="TxtMessages" IsReadOnly="True" AcceptsReturn="True"
+                             FontFamily="Consolas, Cascadia Code, Courier New" FontSize="11"
+                             TextWrapping="Wrap" BorderThickness="0"/>
+                </TabItem>
+            </TabControl>
+        </Grid>
+    </DockPanel>
+</Window>

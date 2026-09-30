@@ -1,0 +1,17 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="Db2Spufi.Avalonia.MessageDialog"
+        Title="Notification"
+        Width="440" Height="220"
+        WindowStartupLocation="CenterOwner"
+        CanResize="False">
+    <Grid Margin="20" RowDefinitions="*,Auto">
+        <ScrollViewer Grid.Row="0">
+            <TextBlock Name="TxtMessage" TextWrapping="Wrap" FontSize="13" VerticalAlignment="Center"/>
+        </ScrollViewer>
+        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="10" Margin="0,15,0,0">
+            <Button Name="BtnCancel" Content="Cancel" Width="80" HorizontalContentAlignment="Center" IsVisible="False" Click="OnCancelClick"/>
+            <Button Name="BtnOk" Content="OK" Width="80" HorizontalContentAlignment="Center" Classes="accent" Click="OnOkClick"/>
+        </StackPanel>
+    </Grid>
+</Window>

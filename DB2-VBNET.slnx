@@ -3,5 +3,6 @@
   <Project Path="Price3DManager/Price3DManager.vbproj" />
   <Project Path="Db2Spufi.Core/Db2Spufi.Core.vbproj" />
   <Project Path="Db2Spufi.WinForms/Db2Spufi.WinForms.vbproj" />
+  <Project Path="Db2Spufi.Avalonia/Db2Spufi.Avalonia.csproj" />
   <Project Path="Db2Spufi.Tests/Db2Spufi.Tests.vbproj" />
 </Solution>
