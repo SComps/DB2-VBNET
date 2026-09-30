@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>Db2Spufi.Core</RootNamespace>
+    <TargetFramework>net10.0</TargetFramework>
+    <OptionStrict>On</OptionStrict>
+    <OptionExplicit>On</OptionExplicit>
+  </PropertyGroup>
+
+  <!--
+    IBM Db2 NuGet packages are platform-specific.
+    Use Windows package on Windows, Linux package on Linux.
+  -->
+  <ItemGroup Condition="$([MSBuild]::IsOSPlatform('Windows')) And !$(RuntimeIdentifier.StartsWith('linux'))">
+    <PackageReference Include="Net.IBM.Data.Db2" Version="10.0.0.300" />
+  </ItemGroup>
+
+  <ItemGroup Condition="$([MSBuild]::IsOSPlatform('Linux')) Or $(RuntimeIdentifier.StartsWith('linux'))">
+    <PackageReference Include="Net.IBM.Data.Db2-lnx" Version="10.0.0.300" />
+  </ItemGroup>
+
+</Project>
