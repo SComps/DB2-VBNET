@@ -1,9 +1,11 @@
 Imports System
+Imports System.Linq
 Imports System.Threading
 Imports System.Threading.Tasks
 Imports Db2Spufi.Core.Config
 Imports Db2Spufi.Core.Execution
 Imports Db2Spufi.Core.Formatting
+Imports Db2Spufi.Core.Linq
 Imports Db2Spufi.Core.Models
 Imports Db2Spufi.Core.Services
 
@@ -83,9 +85,31 @@ Module Program
         Else
             Console.WriteLine("FAILED: Query 2 DataTable is Nothing")
         End If
+        Console.WriteLine()
+
+        ' Test 6: LINQ & IQueryable / IEnumerable Support Test
+        Console.WriteLine("Test 6: Testing LINQ (Db2DataContext, IQueryable, IEnumerable, ToEntities)...")
+        Using ctx = profile.CreateDataContext()
+            ' Query sys tables into strongly typed objects
+            Dim tablesQuery = ctx.AsQueryable(Of SysTableEntity)("SELECT CREATOR, NAME, DBNAME FROM SYSIBM.SYSTABLES WHERE DBNAME = 'PRICE3D' ORDER BY NAME")
+            
+            ' Apply LINQ operators (Where, Select, ToList)
+            Dim filteredList = tablesQuery.Where(Function(t) t.Creator = "SCOTT" OrElse t.Creator = "SYSIBM").ToList()
+
+            Console.WriteLine($"LINQ Query returned {filteredList.Count} SysTableEntity objects.")
+            For Each t In filteredList
+                Console.WriteLine($"  - [Entity] Creator={t.Creator}, Name={t.Name}, DbName={t.DbName}")
+            Next
+        End Using
 
         Console.WriteLine()
         Console.WriteLine("=== ALL VERIFICATION TESTS PASSED SUCCESSFULLY! ===")
     End Function
+
+    Public Class SysTableEntity
+        Public Property Creator As String
+        Public Property Name As String
+        Public Property DbName As String
+    End Class
 
 End Module
