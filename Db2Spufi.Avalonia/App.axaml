@@ -2,10 +2,67 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              x:Class="Db2Spufi.Avalonia.App"
              RequestedThemeVariant="Default">
-             <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
 
     <Application.Styles>
         <FluentTheme />
         <StyleInclude Source="avares://Avalonia.Controls.DataGrid/Themes/Fluent.xaml"/>
+
+        <!-- Standard Business Desktop Application Styles (Compact Font Sizes & Spacing) -->
+        <Style Selector="TextBlock">
+            <Setter Property="FontSize" Value="12"/>
+        </Style>
+
+        <Style Selector="Menu">
+            <Setter Property="FontSize" Value="12"/>
+        </Style>
+        <Style Selector="Menu > MenuItem">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Padding" Value="8,4"/>
+        </Style>
+        <Style Selector="MenuItem">
+            <Setter Property="FontSize" Value="12"/>
+        </Style>
+
+        <Style Selector="TabItem">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Padding" Value="10,4"/>
+            <Setter Property="MinHeight" Value="26"/>
+        </Style>
+
+        <Style Selector="Button">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Padding" Value="8,3"/>
+            <Setter Property="MinHeight" Value="25"/>
+        </Style>
+
+        <Style Selector="ComboBox">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Padding" Value="6,3"/>
+            <Setter Property="MinHeight" Value="25"/>
+        </Style>
+
+        <Style Selector="TextBox">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="MinHeight" Value="25"/>
+        </Style>
+
+        <Style Selector="CheckBox">
+            <Setter Property="FontSize" Value="12"/>
+        </Style>
+
+        <Style Selector="ListBoxItem">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Padding" Value="6,4"/>
+        </Style>
+
+        <Style Selector="DataGridColumnHeader">
+            <Setter Property="FontSize" Value="11.5"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Padding" Value="6,3"/>
+        </Style>
+
+        <Style Selector="DataGridCell">
+            <Setter Property="FontSize" Value="11.5"/>
+        </Style>
     </Application.Styles>
 </Application>

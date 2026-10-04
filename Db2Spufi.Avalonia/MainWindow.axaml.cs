@@ -290,13 +290,13 @@ public partial class MainWindow : Window
                     Background = new SolidColorBrush(Color.FromRgb(245, 245, 245)),
                     BorderBrush = new SolidColorBrush(Color.FromRgb(225, 225, 225)),
                     BorderThickness = new Thickness(0, 0, 0, 1),
-                    Padding = new Thickness(8, 4)
+                    Padding = new Thickness(6, 3)
                 };
 
                 var topPanel = new StackPanel
                 {
                     Orientation = Orientation.Horizontal,
-                    Spacing = 12,
+                    Spacing = 10,
                     VerticalAlignment = VerticalAlignment.Center
                 };
 
@@ -304,7 +304,8 @@ public partial class MainWindow : Window
                 var btnExport = new Button
                 {
                     Content = "Export to CSV...",
-                    Height = 28
+                    Height = 24,
+                    FontSize = 12
                 };
                 btnExport.Click += async (_, _) => await ExportDataTableToCsvAsync(capturedTable);
 
@@ -312,6 +313,7 @@ public partial class MainWindow : Window
                 {
                     Text = $"Rows: {stmt.RowsReturned} | Duration: {stmt.ExecutionDuration.TotalMilliseconds:F0} ms | SQLCODE: {stmt.SqlCode}",
                     FontWeight = FontWeight.SemiBold,
+                    FontSize = 11.5,
                     VerticalAlignment = VerticalAlignment.Center
                 };
 
@@ -347,7 +349,8 @@ public partial class MainWindow : Window
                             {
                                 Text = text,
                                 VerticalAlignment = VerticalAlignment.Center,
-                                Margin = new Thickness(6, 4)
+                                FontSize = 11.5,
+                                Margin = new Thickness(4, 2)
                             };
                         })
                     };
