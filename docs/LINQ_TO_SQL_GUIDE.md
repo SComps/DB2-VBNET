@@ -125,6 +125,145 @@ public class SysTableEntity
 
 ---
 
+## 1.5. Establishing Connection Targets & Credentials
+
+To connect to an IBM Db2 database (z/OS or LUW), you must specify **where** to connect (Server Host/IP, Port, Database/Location Name) and **what credentials** to authenticate with (User ID, Password, and optional Current SQLID).
+
+`Db2Spufi.Core` provides `ConnectionProfile` and `ProfileManager` to encapsulate and persist these settings.
+
+### Connection Parameters Breakdown
+
+| Parameter | Property (`ConnectionProfile`) | Connection String Key | Description / Example |
+| :--- | :--- | :--- | :--- |
+| **Server Host** | `profile.Server` | `Server=` | IP address or hostname of the Db2 server (e.g., `10.10.13.2` or `db2.company.com`). |
+| **Port** | `profile.Port` | `Server=...:8103` | DRDA listener TCP port (e.g., `8103` for Db2 z/OS, `50000` / `50001` for LUW). |
+| **Database / Location** | `profile.Database` | `Database=` | Db2 z/OS Location Name or DB2 LUW Database Name (e.g., `DBD1LOC` or `SAMPLE`). |
+| **User ID** | `profile.User` | `UID=` | Mainframe RACF ID or Db2 login username (e.g., `SCOTT`). |
+| **Password** | `profile.Password` | `PWD=` | Password associated with the user ID. |
+| **Current SQLID** | `profile.CurrentSqlId` | `CurrentSQLID=` | *(Optional z/OS)* Primary schema owner / authorization ID for query execution (e.g., `SCOTT`). |
+
+---
+
+### Option 1: Inline Programmatic Connection (VB.NET & C#)
+
+You can construct a `ConnectionProfile` directly in code without external config files:
+
+#### VB.NET
+```vb
+Imports Db2Spufi.Core.Models
+Imports Db2Spufi.Core.Linq
+
+Dim profile As New ConnectionProfile With {
+    .Name = "Db2 Production z/OS",
+    .Server = "10.10.13.2",
+    .Port = 8103,
+    .Database = "DBD1LOC",
+    .User = "SCOTT",
+    .Password = "your_password_here",
+    .CurrentSqlId = "SCOTT"
+}
+
+' Create Db2DataContext directly from the profile
+Using ctx = profile.CreateDataContext()
+    ' Execute queries...
+End Using
+```
+
+#### C#
+```csharp
+using Db2Spufi.Core.Models;
+using Db2Spufi.Core.Linq;
+
+var profile = new ConnectionProfile
+{
+    Name = "Db2 Production z/OS",
+    Server = "10.10.13.2",
+    Port = 8103,
+    Database = "DBD1LOC",
+    User = "SCOTT",
+    Password = "your_password_here",
+    CurrentSqlId = "SCOTT"
+};
+
+// Create Db2DataContext directly from the profile
+using (var ctx = profile.CreateDataContext())
+{
+    // Execute queries...
+}
+```
+
+---
+
+### Option 2: Using Saved Profiles JSON & `ProfileManager`
+
+`ProfileManager` automatically persists connection target configurations to a JSON file (`%APPDATA%\Db2Spufi\profiles.json` on Windows or a specified file path).
+
+#### VB.NET
+```vb
+Imports Db2Spufi.Core.Config
+Imports Db2Spufi.Core.Models
+
+' Load default profile from %APPDATA%\Db2Spufi\profiles.json
+Dim manager As New ProfileManager()
+Dim defaultProfile As ConnectionProfile = manager.GetDefaultProfile()
+
+Console.WriteLine($"Connecting to {defaultProfile.Database} at {defaultProfile.Server}:{defaultProfile.Port} as {defaultProfile.User}")
+```
+
+#### C#
+```csharp
+using Db2Spufi.Core.Config;
+using Db2Spufi.Core.Models;
+
+// Load default profile from %APPDATA%\Db2Spufi\profiles.json
+var manager = new ProfileManager();
+ConnectionProfile defaultProfile = manager.GetDefaultProfile();
+
+Console.WriteLine($"Connecting to {defaultProfile.Database} at {defaultProfile.Server}:{defaultProfile.Port} as {defaultProfile.User}");
+```
+
+#### Example `profiles.json` File Format
+```json
+[
+  {
+    "Id": "a1b2c3d4e5f67890",
+    "Name": "Db2 z/OS (DBD1LOC)",
+    "Server": "10.10.13.2",
+    "Port": 8103,
+    "Database": "DBD1LOC",
+    "User": "SCOTT",
+    "Password": "your_password",
+    "CurrentSqlId": "SCOTT",
+    "IsDefault": true
+  }
+]
+```
+
+---
+
+### Option 3: Raw ADO.NET Connection String
+
+`Db2DataContext` also accepts a standard IBM Db2 ADO.NET connection string directly:
+
+#### VB.NET
+```vb
+Dim connStr As String = "Server=10.10.13.2:8103;Database=DBD1LOC;UID=SCOTT;PWD=your_password;CurrentSQLID=SCOTT;"
+Using ctx As New Db2DataContext(connStr)
+    ' Execute queries...
+End Using
+```
+
+#### C#
+```csharp
+string connStr = "Server=10.10.13.2:8103;Database=DBD1LOC;UID=SCOTT;PWD=your_password;CurrentSQLID=SCOTT;";
+using (var ctx = new Db2DataContext(connStr))
+{
+    // Execute queries...
+}
+```
+
+---
+
 ## 2. Using `Db2DataContext` with `IQueryable`
 
 `Db2DataContext` manages connections and query execution against IBM Db2. Use `AsQueryable(Of T)` / `AsQueryable<T>` to construct queries that support standard LINQ query operators (`Where`, `Select`, `OrderBy`, `Take`, `FirstOrDefault`, `ToList`).
