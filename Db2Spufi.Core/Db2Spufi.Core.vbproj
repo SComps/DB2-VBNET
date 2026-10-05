@@ -5,6 +5,10 @@
     <TargetFramework>net10.0</TargetFramework>
     <OptionStrict>On</OptionStrict>
     <OptionExplicit>On</OptionExplicit>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <Version>1.0.0</Version>
+    <Authors>Scott / SComps</Authors>
+    <Description>IBM Db2 SPUFI execution engine, profile management, and LINQ to Db2 library for .NET 10 applications.</Description>
   </PropertyGroup>
 
   <!--
