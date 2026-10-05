@@ -1,8 +1,100 @@
 # LINQ to Db2 / SQL Developer Guide (`Db2Spufi.Core.Linq`)
 
-This guide explains how to use **`Db2Spufi.Core`** as a lightweight LINQ to SQL data access library for IBM Db2 (z/OS and LUW) in both **VB.NET** and **C#**.
+This guide explains how to import and use **`Db2Spufi.Core`** as a lightweight LINQ to SQL data access library for IBM Db2 (z/OS and LUW) in both **VB.NET** and **C#**.
 
 `Db2Spufi.Core.Linq` provides strongly-typed object materialization, `IEnumerable<T>` / `IEnumerable(Of T)`, `IQueryable<T>` / `IQueryable(Of T)`, and `Db2DataContext` query execution over IBM Db2 without requiring heavy external O/RM frameworks.
+
+---
+
+## 0. Importing `Db2Spufi.Core` into External Applications
+
+Before writing LINQ code, import `Db2Spufi.Core` into your external application using either **Option A (NuGet Package)** or **Option B (Manual DLL Assembly Reference)**.
+
+### First, Generate Library Assets
+Run the publish script for your operating system to build library assets without sample GUI applications:
+
+- **Windows**:
+  ```powershell
+  powershell -ExecutionPolicy Bypass -File scripts\Publish-Db2Spufi-Library-Win-x64.ps1
+  ```
+- **Linux**:
+  ```bash
+  chmod +x scripts/publish-db2spufi-library-linux-x64.sh
+  ./scripts/publish-db2spufi-library-linux-x64.sh
+  ```
+
+---
+
+### Option A: Importing via Local NuGet Package (Recommended)
+
+Publishing outputs `.nupkg` packages to `publish/library/nupkg/Db2Spufi.Core.1.0.0.nupkg`.
+
+#### 1. Via .NET CLI
+In your external project folder, add the package specifying the local source path:
+```bash
+dotnet add package Db2Spufi.Core --version 1.0.0 --source ./path/to/DB2-VBNET/publish/library/nupkg
+```
+
+#### 2. Via `nuget.config`
+Add a local package source in a `nuget.config` file placed in your target solution root:
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<configuration>
+  <packageSources>
+    <add key="Db2SpufiLocal" value="./publish/library/nupkg" />
+  </packageSources>
+</configuration>
+```
+Then reference the package in your target `.csproj` or `.vbproj`:
+```xml
+<ItemGroup>
+  <PackageReference Include="Db2Spufi.Core" Version="1.0.0" />
+</ItemGroup>
+```
+
+---
+
+### Option B: Importing Assemblies / DLLs Manually
+
+If your project does not use NuGet feeds, you can reference the compiled assemblies directly from `publish/library/win-x64/` (Windows) or `publish/library/linux-x64/` (Linux).
+
+#### 1. Project Reference Snippet (`.csproj` or `.vbproj`)
+
+##### C# Project (`.csproj`)
+```xml
+<ItemGroup>
+  <!-- Direct DLL Reference -->
+  <Reference Include="Db2Spufi.Core">
+    <HintPath>..\path\to\publish\library\win-x64\Db2Spufi.Core.dll</HintPath>
+  </Reference>
+  
+  <!-- IBM Db2 ADO.NET Provider Dependency -->
+  <PackageReference Include="Net.IBM.Data.Db2" Version="10.0.0.300" Condition="$([MSBuild]::IsOSPlatform('Windows'))" />
+  <PackageReference Include="Net.IBM.Data.Db2-lnx" Version="10.0.0.300" Condition="$([MSBuild]::IsOSPlatform('Linux'))" />
+</ItemGroup>
+```
+
+##### VB.NET Project (`.vbproj`)
+```xml
+<ItemGroup>
+  <!-- Direct DLL Reference -->
+  <Reference Include="Db2Spufi.Core">
+    <HintPath>..\path\to\publish\library\win-x64\Db2Spufi.Core.dll</HintPath>
+  </Reference>
+  
+  <!-- IBM Db2 ADO.NET Provider Dependency -->
+  <PackageReference Include="Net.IBM.Data.Db2" Version="10.0.0.300" Condition="$([MSBuild]::IsOSPlatform('Windows'))" />
+  <PackageReference Include="Net.IBM.Data.Db2-lnx" Version="10.0.0.300" Condition="$([MSBuild]::IsOSPlatform('Linux'))" />
+</ItemGroup>
+```
+
+#### 2. Required Binaries in Output Folder
+
+Ensure the following files from `publish/library/<platform>/` are present in your target application runtime folder:
+- **`Db2Spufi.Core.dll`**: Core engine & LINQ to Db2 provider.
+- **`Db2Spufi.Core.xml`**: Intellisense tooltips and API documentation.
+- **`Net.IBM.Data.Db2.dll`** (Windows) or **`Net.IBM.Data.Db2-lnx.dll`** (Linux): IBM ADO.NET data provider.
+- **`clidriver/`**: Subdirectory containing IBM DB2 native driver libraries required for DRDA protocol database communication.
 
 ---
 
